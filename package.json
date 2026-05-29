@@ -1,0 +1,14 @@
+{
+  "name": "doctor-booking-system",
+  "version": "1.0.0",
+  "description": "Doctor Appointment Booking System - Full Stack Healthcare Application",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && node index.js",
+    "client": "cd client && npm run dev",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
