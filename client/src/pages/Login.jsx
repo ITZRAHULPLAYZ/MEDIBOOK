@@ -66,7 +66,7 @@ export default function Login() {
           <p>Sign in to your account to continue</p>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label className="form-label">Email Address</label>
             <input

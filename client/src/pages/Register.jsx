@@ -100,7 +100,7 @@ export default function Register() {
           <p>Join MediBook and book appointments easily</p>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label className="form-label">Full Name</label>
             <input
