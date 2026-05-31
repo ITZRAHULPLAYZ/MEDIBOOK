@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeartPulse, Droplet, Bone, Baby, Brain, Stethoscope } from 'lucide-react';
 import DoctorCard from '../components/DoctorCard';
@@ -12,58 +12,6 @@ const SPECIALTIES = [
   { name: 'Neurology', icon: Brain, desc: 'Brain and nervous system experts' },
   { name: 'General Medicine', icon: Stethoscope, desc: 'Primary care and wellness checkups' },
 ];
-
-const STATS = [
-  { target: 500, label: 'Doctors', suffix: '+' },
-  { target: 10000, label: 'Appointments', suffix: '+' },
-  { target: 50, label: 'Specialties', suffix: '+' },
-  { target: 4.9, label: 'Rating', suffix: '', isDecimal: true },
-];
-
-function AnimatedCounter({ target, suffix, isDecimal, delay }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          const duration = 2000;
-          const startTime = Date.now();
-          const step = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const current = isDecimal
-              ? parseFloat((eased * target).toFixed(1))
-              : Math.floor(eased * target);
-            setCount(current);
-            if (progress < 1) {
-              requestAnimationFrame(step);
-            }
-          };
-          setTimeout(() => requestAnimationFrame(step), delay || 0);
-        }
-      },
-      { threshold: 0.3 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, [target, isDecimal, delay]);
-
-  return (
-    <span ref={ref}>
-      {isDecimal ? count.toFixed(1) : count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
 
 export default function Home() {
   const navigate = useNavigate();
@@ -121,26 +69,6 @@ export default function Home() {
                 Learn More
               </button>
             </div>
-          </div>
-
-          <div className="hero-stats">
-            {STATS.map((stat, i) => (
-              <div
-                key={stat.label}
-                className="hero-stat"
-                style={{ animationDelay: `${0.3 + i * 0.15}s` }}
-              >
-                <div className="hero-stat-value gradient-text">
-                  <AnimatedCounter
-                    target={stat.target}
-                    suffix={stat.suffix}
-                    isDecimal={stat.isDecimal}
-                    delay={300 + i * 150}
-                  />
-                </div>
-                <div className="hero-stat-label">{stat.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

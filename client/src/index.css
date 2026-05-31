@@ -1624,12 +1624,13 @@ body {
 
 /* === HOME PAGE === */
 .hero {
-  min-height: 100vh;
+  min-height: 70vh;
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
-  padding-top: var(--navbar-height);
+  padding-top: calc(var(--navbar-height) + var(--space-xl));
+  padding-bottom: var(--space-3xl);
 }
 
 .hero-bg {
@@ -1700,7 +1701,7 @@ body {
 .hero-ctas {
   display: flex;
   gap: var(--space-md);
-  margin-bottom: var(--space-3xl);
+  margin-bottom: 0;
   flex-wrap: wrap;
 }
 
