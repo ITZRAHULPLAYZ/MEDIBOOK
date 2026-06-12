@@ -1,176 +1,70 @@
-import React, { useState, useEffect } from 'react';
+// Navbar.jsx — The top navigation bar shown on every page.
+//
+// Props received from App.jsx:
+//   user      — the logged-in user object (or null if not logged in)
+//   onLogout  — function to call when user clicks "Logout"
+
+import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Activity } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
-export default function Navbar() {
-  const { user, isAuthenticated, isAdmin, logout } = useAuth();
+export default function Navbar({ user, onLogout }) {
   const navigate = useNavigate();
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 20);
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mobileOpen]);
 
   function handleLogout() {
-    logout();
-    setMobileOpen(false);
+    onLogout();
     navigate('/');
   }
 
-  function closeMobile() {
-    setMobileOpen(false);
-  }
-
+  // Returns the first letter(s) of the user's name for the avatar circle
   function getInitials(name) {
     if (!name) return '?';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
   return (
-    <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
-      <div className="navbar-inner">
-        <Link to="/" className="navbar-logo" onClick={closeMobile}>
-          <div className="navbar-logo-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Activity size={20} /></div>
-          <span className="gradient-text">MediBook</span>
+    <nav className="navbar">
+      <div className="navbar-inner" style={{ flexWrap: 'wrap', gap: '12px' }}>
+        {/* Logo */}
+        <Link to="/" className="navbar-logo">
+          <div className="navbar-logo-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Activity size={20} />
+          </div>
+          <span>MediBook</span>
         </Link>
 
-        <div className="navbar-links">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              `navbar-link${isActive ? ' active' : ''}`
-            }
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/doctors"
-            className={({ isActive }) =>
-              `navbar-link${isActive ? ' active' : ''}`
-            }
-          >
-            Find Doctors
-          </NavLink>
-          {isAuthenticated && (
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `navbar-link${isActive ? ' active' : ''}`
-              }
-            >
-              Dashboard
+        {/* Navigation Links and Login Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div className="navbar-links">
+            <NavLink to="/" end className={({ isActive }) => `navbar-link${isActive ? ' active' : ''}`}>
+              Home
             </NavLink>
-          )}
-          {isAdmin && (
-            <NavLink
-              to="/admin"
-              className={({ isActive }) =>
-                `navbar-link${isActive ? ' active' : ''}`
-              }
-            >
-              Admin
+            <NavLink to="/doctors" className={({ isActive }) => `navbar-link${isActive ? ' active' : ''}`}>
+              Find Doctors
             </NavLink>
-          )}
-        </div>
+            {user && (
+              <NavLink to="/dashboard" className={({ isActive }) => `navbar-link${isActive ? ' active' : ''}`}>
+                Dashboard
+              </NavLink>
+            )}
+          </div>
 
-        <div className="navbar-actions">
-          {isAuthenticated ? (
-            <>
-              <Link to="/profile" className="navbar-user">
-                <div className="navbar-user-avatar">
-                  {getInitials(user?.name)}
+          <div className="navbar-actions">
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="navbar-user">
+                  <div className="navbar-user-avatar">{getInitials(user.name)}</div>
+                  <span className="navbar-user-name">{user.name.split(' ')[0]}</span>
                 </div>
-                <span className="navbar-user-name">{user?.name?.split(' ')[0]}</span>
-              </Link>
-              <button className="btn btn-ghost btn-sm" onClick={handleLogout}>
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="btn btn-ghost btn-sm">
-                Sign In
-              </Link>
-              <Link to="/register" className="btn btn-primary btn-sm">
-                Register
-              </Link>
-            </>
-          )}
+                <button className="btn btn-ghost btn-sm" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link to="/register" className="btn btn-primary btn-sm">Register</Link>
+            )}
+          </div>
         </div>
-
-        <button
-          className={`navbar-hamburger${mobileOpen ? ' open' : ''}`}
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
-
-      <div className={`navbar-mobile-menu${mobileOpen ? ' open' : ''}`}>
-        <NavLink to="/" className="navbar-link" onClick={closeMobile}>
-          Home
-        </NavLink>
-        <NavLink to="/doctors" className="navbar-link" onClick={closeMobile}>
-          Find Doctors
-        </NavLink>
-        {isAuthenticated && (
-          <>
-            <NavLink to="/dashboard" className="navbar-link" onClick={closeMobile}>
-              Dashboard
-            </NavLink>
-            <NavLink to="/history" className="navbar-link" onClick={closeMobile}>
-              History
-            </NavLink>
-            <NavLink to="/profile" className="navbar-link" onClick={closeMobile}>
-              Profile
-            </NavLink>
-          </>
-        )}
-        {isAdmin && (
-          <NavLink to="/admin" className="navbar-link" onClick={closeMobile}>
-            Admin
-          </NavLink>
-        )}
-        {isAuthenticated ? (
-          <button className="btn btn-ghost" onClick={handleLogout}>
-            Logout
-          </button>
-        ) : (
-          <>
-            <Link to="/login" className="btn btn-ghost" onClick={closeMobile}>
-              Sign In
-            </Link>
-            <Link to="/register" className="btn btn-primary" onClick={closeMobile}>
-              Register
-            </Link>
-          </>
-        )}
       </div>
     </nav>
   );

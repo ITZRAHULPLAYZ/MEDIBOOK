@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, Mail, Phone, MapPin } from 'lucide-react';
+import { Activity } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -17,14 +17,14 @@ export default function Footer() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, #06b6d4, #8b5cf6)',
+                background: '#3a3532',
                 borderRadius: 8,
                 fontSize: 16,
                 color: 'white',
               }}>
                 <Activity size={20} />
               </span>
-              <span className="gradient-text">MediBook</span>
+              <span>MediBook</span>
             </div>
             <p className="footer-brand-desc">
               Your trusted platform for booking doctor appointments online.
@@ -39,7 +39,6 @@ export default function Footer() {
               <li><Link to="/">Home</Link></li>
               <li><Link to="/doctors">Find Doctors</Link></li>
               <li><Link to="/dashboard">Dashboard</Link></li>
-              <li><Link to="/history">Booking History</Link></li>
             </ul>
           </div>
 
@@ -50,15 +49,6 @@ export default function Footer() {
               <li><Link to="/doctors?specialty=Dermatology">Dermatology</Link></li>
               <li><Link to="/doctors?specialty=Orthopedics">Orthopedics</Link></li>
               <li><Link to="/doctors?specialty=Pediatrics">Pediatrics</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer-col-title">Contact</h4>
-            <ul className="footer-col-links">
-              <li><span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={16} /> support@medibook.com</span></li>
-              <li><span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={16} /> +1 (555) 123-4567</span></li>
-              <li><span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><MapPin size={16} /> 123 Health Street, NY</span></li>
             </ul>
           </div>
         </div>

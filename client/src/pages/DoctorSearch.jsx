@@ -1,8 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
+// DoctorSearch.jsx — The "Find a Doctor" page.
+//
+// The user can:
+//   - Type in the search box to filter by name or specialty
+//   - Pick a specialty from the dropdown
+//   - Sort results by rating, experience, or fee
+//
+// All filtering is done with plain JavaScript on the DOCTORS array.
+// No API calls needed!
+
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import DoctorCard from '../components/DoctorCard';
-import { getDoctors } from '../services/api';
+import DOCTORS from '../data/doctors';
 
 const SPECIALTIES = [
   'All Specialties',
@@ -12,71 +22,53 @@ const SPECIALTIES = [
   'Pediatrics',
   'Neurology',
   'General Medicine',
-  'Ophthalmology',
-  'ENT',
-  'Psychiatry',
-  'Gynecology',
 ];
 
 const SORT_OPTIONS = [
-  { value: '', label: 'Default' },
-  { value: 'rating', label: 'Top Rated' },
-  { value: 'experience', label: 'Most Experienced' },
-  { value: 'fee_asc', label: 'Fee: Low to High' },
+  { value: '',          label: 'Default' },
+  { value: 'rating',   label: 'Top Rated' },
+  { value: 'exp',      label: 'Most Experienced' },
+  { value: 'fee_asc',  label: 'Fee: Low to High' },
   { value: 'fee_desc', label: 'Fee: High to Low' },
 ];
 
 export default function DoctorSearch() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  // useSearchParams lets us pre-fill the specialty from the URL
+  // e.g. /doctors?specialty=Cardiology (from clicking a specialty card on Home)
+  const [searchParams] = useSearchParams();
 
-  const [doctors, setDoctors] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [search,    setSearch]    = useState('');
   const [specialty, setSpecialty] = useState(searchParams.get('specialty') || '');
-  const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [sort, setSort] = useState(searchParams.get('sort') || '');
+  const [sort,      setSort]      = useState('');
 
-  const fetchDoctors = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = {};
-      if (search) params.search = search;
-      if (specialty && specialty !== 'All Specialties') params.specialty = specialty;
-      if (location) params.location = location;
-      if (sort) params.sort = sort;
+  // ── Filter + sort the doctors array ─────────────────────────
+  let results = [...DOCTORS];
 
-      const res = await getDoctors(params);
-      const data = res.data.doctors || res.data || [];
-      setDoctors(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setDoctors([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, specialty, location, sort]);
-
-  useEffect(() => {
-    fetchDoctors();
-  }, [fetchDoctors]);
-
-  useEffect(() => {
-    const params = {};
-    if (search) params.search = search;
-    if (specialty && specialty !== 'All Specialties') params.specialty = specialty;
-    if (location) params.location = location;
-    if (sort) params.sort = sort;
-    setSearchParams(params, { replace: true });
-  }, [search, specialty, location, sort, setSearchParams]);
-
-  function handleSearchSubmit(e) {
-    e.preventDefault();
-    fetchDoctors();
+  // 1. Filter by search text (checks name and specialty)
+  if (search.trim()) {
+    const q = search.toLowerCase();
+    results = results.filter(
+      (d) => d.name.toLowerCase().includes(q) || d.specialty.toLowerCase().includes(q)
+    );
   }
+
+  // 2. Filter by specialty dropdown
+  if (specialty && specialty !== 'All Specialties') {
+    results = results.filter((d) => d.specialty === specialty);
+  }
+
+  // 3. Sort
+  if (sort === 'rating')   results.sort((a, b) => b.rating - a.rating);
+  if (sort === 'exp')      results.sort((a, b) => b.experience - a.experience);
+  if (sort === 'fee_asc')  results.sort((a, b) => a.fee - b.fee);
+  if (sort === 'fee_desc') results.sort((a, b) => b.fee - a.fee);
 
   return (
     <div className="doctor-search-page">
       <div className="container">
+
+        {/* ── Search header ─────────────────────────── */}
         <div className="search-header">
           <h1 className="section-title">
             Find a <span className="gradient-text">Doctor</span>
@@ -85,18 +77,18 @@ export default function DoctorSearch() {
             Search through our network of verified specialists
           </p>
 
-          <form onSubmit={handleSearchSubmit}>
-            <div className="search-bar">
-              <span className="search-bar-icon"><Search size={20} color="#9ca3af" /></span>
-              <input
-                type="text"
-                placeholder="Search doctors by name, specialty, or location..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </form>
+          {/* Search input */}
+          <div className="search-bar">
+            <span className="search-bar-icon"><Search size={20} color="#9ca3af" /></span>
+            <input
+              type="text"
+              placeholder="Search doctors by name or specialty..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
+          {/* Filter row: specialty + sort */}
           <div className="filter-row">
             <select
               className="select"
@@ -104,20 +96,9 @@ export default function DoctorSearch() {
               onChange={(e) => setSpecialty(e.target.value)}
             >
               {SPECIALTIES.map((s) => (
-                <option key={s} value={s === 'All Specialties' ? '' : s}>
-                  {s}
-                </option>
+                <option key={s} value={s === 'All Specialties' ? '' : s}>{s}</option>
               ))}
             </select>
-
-            <input
-              type="text"
-              className="input"
-              placeholder="Location..."
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              style={{ maxWidth: 200 }}
-            />
 
             <select
               className="select"
@@ -125,32 +106,26 @@ export default function DoctorSearch() {
               onChange={(e) => setSort(e.target.value)}
             >
               {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  Sort: {o.label}
-                </option>
+                <option key={o.value} value={o.value}>Sort: {o.label}</option>
               ))}
             </select>
           </div>
         </div>
 
+        {/* ── Results count ─────────────────────────── */}
         <div className="search-results-header">
           <span className="search-results-count">
-            {loading ? 'Searching...' : `Showing ${doctors.length} doctor${doctors.length !== 1 ? 's' : ''}`}
+            Showing {results.length} doctor{results.length !== 1 ? 's' : ''}
           </span>
         </div>
 
-        {loading ? (
-          <div className="skeleton-grid">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="skeleton skeleton-card" />
-            ))}
-          </div>
-        ) : doctors.length > 0 ? (
+        {/* ── Doctor cards ──────────────────────────── */}
+        {results.length > 0 ? (
           <div className="doctors-grid">
-            {doctors.map((doc, i) => (
+            {results.map((doc, i) => (
               <DoctorCard
-                key={doc.id || i}
-                doctor={{ ...doc, _index: i }}
+                key={doc.id}
+                doctor={doc}
                 onClick={() => navigate(`/doctors/${doc.id}`)}
               />
             ))}
@@ -162,6 +137,7 @@ export default function DoctorSearch() {
             <p>Try adjusting your search or filters</p>
           </div>
         )}
+
       </div>
     </div>
   );

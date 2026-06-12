@@ -1,15 +1,9 @@
 {
-  "name": "doctor-booking-system",
+  "name": "medibook",
   "version": "1.0.0",
-  "description": "Doctor Appointment Booking System - Full Stack Healthcare Application",
+  "description": "MediBook — Doctor Appointment Booking (Frontend Only)",
   "scripts": {
-    "dev": "concurrently \"npm run api\" \"npm run client\"",
-    "api": "cd api && node index.js",
-    "client": "cd client && npm run dev",
-    "install:all": "npm install && cd api && npm install && cd ../client && npm install",
-    "build": "cd client && npm install && npm run build"
-  },
-  "dependencies": {
-    "concurrently": "^8.2.2"
+    "dev": "cd client && npm run dev",
+    "build": "cd client && npm run build"
   }
 }
